@@ -1,6 +1,6 @@
 CC  = gcc
 DEPS = #shm_com.h
-OBJ =  process1.o process2.o process3.o pipe1.o pipe2.o
+OBJ =  process1.o process2.o process3.o pipe1.o pipe2.o fifo1.o
 CFLAGS = -I.
 
 %.o: %.c $(DEPS)
@@ -23,7 +23,10 @@ pipe1: pipe1.o
 pipe2: pipe2.o
 	$(CC) -o $@ $^ $(CFLAGS)
 	
+fifo1: fifo1.o
+	$(CC) -o $@ $^ $(CFLAGS)
+	
 .PHONY: clean
 
 clean:
-	rm -f *.o process1 process2 process3 *~
+	rm -f *.o process1 process2 process3 pipe1 pipe2  fifo1 *~
