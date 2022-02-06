@@ -7,7 +7,7 @@ int main(){
 
   int data_processed;
   int file_pipes[2];
-  const char some_data[] = "123";
+  const char some_data[] = "123\n";
   char buffer[BUFSIZ +1];
   pid_t fork_result;
   
@@ -17,12 +17,14 @@ int main(){
     
       fork_result = fork();
       if(fork_result == (pid_t)-1){
-         fprintf(stderr,"Fork failure");
+         fprintf(stderr,"Fork failure\n");
          exit(EXIT_FAILURE);
       }
       
+      printf("%d fork = %d\n",getpid(),fork_result);
+      
       if( fork_result == 0){
-         printf("Child process");
+         printf("Child process \n");
          sprintf(buffer, "%d", file_pipes[0]);
          (void)execl("pipe2","pipe2",buffer,(char *)0);
          exit(EXIT_FAILURE);

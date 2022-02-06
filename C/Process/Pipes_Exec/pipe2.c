@@ -4,6 +4,12 @@
 #include <string.h>
 
 int main(int argc, char *argv[]){
+
+   /*
+      argv[0], Which takes the program name
+      argv[1], Which contains the file descriptor number you want  the program to read from 
+      (char*)0, Which terminates the parameter
+   */
   
   int data_processed;
   char buffer[BUFSIZ+1];
@@ -13,6 +19,6 @@ int main(int argc, char *argv[]){
   sscanf(argv[1],"%d", &file_descriptor);
   data_processed = read(file_descriptor, buffer, BUFSIZ);
 
-  printf("%d - read %d bytes: %s\n",getpid(), data_processed, buffer);
+  printf("\n%d - read %d bytes: %s",getpid(), data_processed, buffer);
   exit(EXIT_SUCCESS);
 }
