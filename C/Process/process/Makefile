@@ -1,12 +1,12 @@
 CC  = gcc
 DEPS = #shm_com.h
-OBJ =  process1.o process2.o process3.o pipe1.o pipe2.o fifo1.o main1.o main2.o ProcessPipe.o
+OBJ =  process1.o process2.o process3.o pipe1.o pipe2.o fifo1.o main1.o main2.o ProcessPipe.o wait.o dup2.o
 CFLAGS = -I.
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-all: process1 process2 process3 pipe1 pipe2 ProcessPipe
+all: process1 process2 process3 process4 pipe1 pipe2 ProcessPipe wait dup2
 
 process1: process1.o
 	$(CC) -o $@ $^ $(CFLAGS)
@@ -35,7 +35,13 @@ main2: main2.o
 ProcessPipe: ProcessPipe.o
 	$(CC) -o $@ $^ $(CFLAGS)
 	
+wait: wait.o
+	$(CC) -o $@ $^ $(CFLAGS)
+	
+dup2: dup2.o
+	$(CC) -o $@ $^ $(CFLAGS)
+	
 .PHONY: clean
 
 clean:
-	rm -f *.o process1 process2 process3 pipe1 pipe2  fifo1 main1 main2 ProcessPipe *~
+	rm -f *.o process1 process2 process3 pipe1 pipe2  fifo1 main1 main2 ProcessPipe wait dup2 *~
