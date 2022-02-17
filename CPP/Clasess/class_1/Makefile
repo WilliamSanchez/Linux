@@ -1,15 +1,27 @@
 CFLAGS = -O 
+DEPS =
+OBJS = punto.o herencia1.o herencia2.o
 CC = g++ 
+CFLAGS = #-I.
 
-all: class
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
-class: class.o vivos.o 
-	$(CC) $(CFLAGS) -o class class.o vivos.o 
-class.o: class.cpp 
-	$(CC) $(CFLAGS) -c class.cpp 
-vivos.o: vivos.cpp 
-	$(CC) $(CFLAGS) -c vivos.cpp 
-clean: 
-	rm -f class *.o *~
+all: punto herencia1 herencia2
+
+punto: punto.o
+	$(CC) -o $@ $^ $(CFLAGS)
+	
+herencia1: herencia1.o
+	$(CC) -o $@ $^ $(CFLAGS)
+	
+herencia2: herencia2.o
+	$(CC) -o $@ $^ $(CFLAGS)
+
+.PHONY: clean
+
+clean:
+	rm -f *.o punto herencia1 herencia2 *~
+
 
 
