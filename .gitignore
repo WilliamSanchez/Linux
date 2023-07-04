@@ -1,0 +1,7 @@
+*
+!*.c
+!Makefile
+!*.png
+!*.plt
+!*.gnu
+!*.pdf
