@@ -1,8 +1,8 @@
 CC=gcc
 CCFLAGS=-Wall
 
-example-1: example-1.c
+lidar: lidar.c
 	$(CC) $(CCFLAGS) $^ -o $@
 	
 clean:
-	rm -f example-1
+	rm -f lidar

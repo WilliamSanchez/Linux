@@ -27,6 +27,7 @@ int main()
    memset(&svaddr, 0, sizeof(struct sockaddr_in));
    svaddr.sin_family = AF_INET;
    svaddr.sin_addr.s_addr = INADDR_ANY;
+   //svaddr.sin_addr.s_addr = inet_addr("192.168.7.2");
    svaddr.sin_port = htons(PORT_NUM);
    
    if(bind(sfd,(struct sockaddr *)&svaddr,sizeof(struct sockaddr_in)) == -1)
