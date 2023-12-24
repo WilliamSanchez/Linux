@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 
 
 
-	char buf[10];
+	char buf[9];
 	char *data;
 	unsigned short dist = 0;
 	unsigned char ver[4]={0X5A, 0x04, 0x01, 0x00};
@@ -34,14 +34,14 @@ int main(int argc, char **argv)
 		//write(fd,ver,4);
 		//while(*buf != '\0')
 		//{
-		     ct = read(fd,&buf,10);
+		     ct = read(fd,&buf,9);
 		//}
                 
 		//printf("%d PORT DATA: %s\n\r",ct, buf);
-		while(*buf == 0x59 && *(buf+1) == 0x59)
-		
-		printf("distance: %d cm\n\r",(short)(((0x0000 | *(buf+3)) << 8) | (0x0000 | *(buf+2))));
-		memset(buf,'\0',sizeof(buf));
+		//while(*buf == 0x59 && *(buf+1) == 0x59)
+		printf("distance: %x|%x|%x|%x|%x|%x|%x|%x|%x\n\r",\
+		buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7],buf[8]);
+		printf("distance: %d cm\n\r",(short)(((0x0000 | *(buf+4)) << 8) | (0x0000 | *(buf+3))));
 		sleep(1);
 	}
 
