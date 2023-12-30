@@ -1,13 +1,11 @@
 CC=gcc
 CCFLAGS=-Wall
 
-all:	lidar imu
-
-lidar: lidar.c
+lidar_i2c: lidar_i2c.c
 	$(CC) $(CCFLAGS) $^ -o $@
 
-lidar: imu.c
-	$(CC) $(CCFLAGS) $^ -o $@
+#lidar: lidar.c
+#	$(CC) $(CCFLAGS) $^ -o $@
 	
 clean:
-	rm -f lidar imu
+	rm -f lidar lidar_i2c *.o *.bin
