@@ -1,19 +1,45 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
-#include <sys/ioctl.h>
+#include <termios.h>
+#include <errno.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
 
 #define DEVID 0x00
-#define BUFFER_SIZE 40
+#define BUFFER_SIZE 6
+#define samples   50
+
+
+unsigned char readData[BUFFER_SIZE];
+
+static short gyro_x = 0xFFFF;
+static short gyro_y = 0xFFFF;
+static short gyro_z = 0xFFFF;
+
+static float calibrate_gyro_x = 0;
+static float calibrate_gyro_y = 0;
+static float calibrate_gyro_z = 0;
+
+static float data_gyro_x =0.0;
+static float data_gyro_y =0.0;
+static float data_gyro_z =0.0;
+
+static float pitch =0.0;
+static float yaw =0.0;
+static float roll =0.0;
 
 int main()
 {
 
    int file;
-   printf("tarting the IMU test application\n\r");
+   printf("Starting the IMU test application\n\r");
    
-   if((file = open("/dev/i2c-2")) < 0)
+   if((file = open("/dev/i2c-2", O_RDWR)) < 0)
    {
      perror("failed to open the bus\n");
      return 1;
@@ -25,25 +51,148 @@ int main()
      return 1;   
    }
 
-    unsigned char writeBuffer = 0x75;
-/*
-    if(write(file, writeBuffer,1) != 1)
-        {
+   unsigned char writeBuffer[2] = {0x75, 0x1B}; 
+   unsigned char read_data = 0x43;
+   unsigned char PWR_MGMT_1 = 0x6B;  
+   unsigned char who_am_i;
+   
+   
+   unsigned char enable[2];
+   unsigned char data;
+   
+    if(write(file,&(*(writeBuffer)),1) != 1)
+    {
      perror("failed to connect the sensor \n");
      return 1;   
    }
    
-   */
+   if(read(file,&who_am_i, 1) != 1)
+   {
+     perror("failed to read the sensor \n");
+     return 1;   
+   }
+         
+   printf("The device ID is: 0x%02x\n",who_am_i);
    
-   unsigned char who_am_i[BUFFER_SIZE];
+   ////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////
    
-   if(read(file, who_am_i, 1) != 1)
+    enable[0] = 0x1B; enable[1] = 0x18;
+   
+    if(write(file, enable, 2) != 2)
+    {
+     perror("failed to connect the sensor \n");
+     return 1;   
+   }
+   
+    if(write(file, &(*(writeBuffer+1)),1) != 1)
+    {
+     perror("failed to connect the sensor \n");
+     return 1;   
+   }
+   
+   if(read(file,&data, 1) != 1)
    {
      perror("failed to read the sensor \n");
      return 1;   
    }
    
-   printf("The device ID is: 0x%02x\n",*who_am_i);
+   printf("The register 0x%02x is: 0x%02x\n",writeBuffer[1], data);
+   ////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////
+   
+   enable[0] = 0x6B; enable[1] = 0x01;
+      
+   if(write(file, enable, 2) != 2)
+   {
+     perror("failed to connect the sensor \n");
+     return 1;   
+   }
+ 
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////			CALIBRATION		////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+   
+  int s = 0;
+  short c_gyro_x = 0;
+  short c_gyro_y = 0;
+  short c_gyro_z = 0;
+
+  while(s < samples)
+  {
+  
+  	 if(write(file, &read_data, 1) != 1 )
+	{
+		perror("Failed to reset the read address\n");
+		return 1;
+	}
+	
+	if(read(file,(void*)readData, BUFFER_SIZE) != BUFFER_SIZE){
+		perror("Failed to read in the buffer\n");
+		return 1;	
+	}  
+	
+	gyro_x = 0xFFFF; gyro_y = 0xFFFF; gyro_z = 0xFFFF;
+	gyro_x &= (readData[0]<< 8 | readData[1]);
+	gyro_y &= (readData[2]<< 8 | readData[3]);
+	gyro_z &= (readData[4]<< 8 | readData[5]); 
+  
+  	c_gyro_x += gyro_x;
+  	c_gyro_y += gyro_y;
+  	c_gyro_z += gyro_z;
+  	s++;
+  	
+  	usleep(50000);
+  } 
+   
+  calibrate_gyro_x = c_gyro_x/samples;
+  calibrate_gyro_y = c_gyro_y/samples;
+  calibrate_gyro_z = c_gyro_z/samples;
+   
+   
+   
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+
+   while(1)
+   {
+   		system("clear");   			 
+	 	if(write(file, &read_data, 1) != 1 )
+		{
+			perror("Failed to reset the read address\n");
+			return 1;
+		}
+	
+		if(read(file,(void*)readData, BUFFER_SIZE) != BUFFER_SIZE){
+		
+			perror("Failed to read in the buffer\n");
+			return 1;	
+		}  
+		
+		gyro_x = 0xFFFF; gyro_y = 0xFFFF; gyro_z = 0xFFFF;
+		gyro_x &= (readData[0]<< 8 | readData[1]);
+		gyro_y &= (readData[2]<< 8 | readData[3]);
+		gyro_z &= (readData[4]<< 8 | readData[5]);
+		
+		data_gyro_x = (((float)gyro_x-calibrate_gyro_x)*.060975f);
+  		data_gyro_y = (((float)gyro_y-calibrate_gyro_y)*.060975f);
+  		data_gyro_z = (((float)gyro_z-calibrate_gyro_z)*.060975f);
+		
+
+		pitch = pitch+data_gyro_x*0.1;
+		yaw = yaw+data_gyro_y*0.1;
+		roll =roll+data_gyro_z*0.1;
+		
+		printf("Gyro x: %f\n\r",pitch);
+		printf("Gyro y: %f\n\r",yaw);
+		printf("Gyro z: %f\n\r",roll);
+		
+		usleep(100000);
+   
+   }
+
    
    close(file);
    
