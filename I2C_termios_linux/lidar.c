@@ -1,69 +1,155 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <termios.h>
-#include <errno.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
+ /*====================================================================================================*/
+        /* Serial Port Programming in C (Serial Port Read)                                                    */
+	/* Non Cannonical mode                                                                                */
+	/*----------------------------------------------------------------------------------------------------*/
+        /* Program reads a string from the serial port at 9600 bps 8N1 format                                 */
+	/* Baudrate - 9600                                                                                    */
+	/* Stop bits -1                                                                                       */
+	/* No Parity                                                                                          */
+        /*----------------------------------------------------------------------------------------------------*/
+	/* Compiler/IDE  : gcc 4.6.3                                                                          */
+	/* Library       :                                                                                    */
+	/* Commands      : gcc -o serialport_read serialport_read.c                                           */
+	/* OS            : Linux(x86) (Linux Mint 13 Maya)(Linux Kernel 3.x.x)                                */                              
+	/* Programmer    : Rahul.S                                                                            */
+	/* Date	         : 21-December-2014                                                                   */
+	/*====================================================================================================*/
 
+	/*====================================================================================================*/
+	/* www.xanthium.in										      */
+	/* Copyright (C) 2014 Rahul.S                                                                         */
+	/*====================================================================================================*/
 
-int fd;
+	/*====================================================================================================*/
+	/* Running the executable                                                                             */
+	/* ---------------------------------------------------------------------------------------------------*/ 
+	/* 1) Compile the  serialport_read.c  file using gcc on the terminal (without quotes)                 */
+        /*                                                                                                    */
+	/*	" gcc -o serialport_read serialport_read.c "                                                  */
+	/*                                                                                                    */
+        /* 2) Linux will not allow you to access the serial port from user space,you have to be root.So use   */
+        /*    "sudo" command to execute the compiled binary as super user.                                    */
+        /*                                                                                                    */
+        /*       "sudo ./serialport_read"                                                                     */
+	/*                                                                                                    */
+	/*====================================================================================================*/
 
-int main(int argc, char **argv)
-{
-  
-	if (argc < 2)
-		perror("Please, put a serial port\n\r");
-		
-	printf("Status open port: %s\n\r",argv[1]);
-
-	struct termios t;
-		
-	if((fd = open(argv[1],O_RDWR | O_NOCTTY | O_NDELAY)) < 0)
-		perror("could not open port\n\r");
+	/*====================================================================================================*/
+	/* Sellecting the Serial port Number on Linux                                                         */
+	/* ---------------------------------------------------------------------------------------------------*/ 
+	/* /dev/ttyUSBx - when using USB to Serial Converter, where x can be 0,1,2...etc                      */
+	/* /dev/ttySx   - for PC hardware based Serial ports, where x can be 0,1,2...etc                      */
+        /*====================================================================================================*/
 	
-	if(tcgetattr(fd,&t) < 0)
-		perror("get termios attributtes");
+	/*-------------------------------------------------------------*/
+    	/* termios structure -  /usr/include/asm-generic/termbits.h    */ 
+	/* use "man termios" to get more info about  termios structure */
+	/*-------------------------------------------------------------*/
+
+    	#include <stdio.h>
+    	#include <stdlib.h>
+    	#include <fcntl.h>   /* File Control Definitions           */
+    	#include <termios.h> /* POSIX Terminal Control Definitions */
+    	#include <unistd.h>  /* UNIX Standard Definitions 	   */ 
+    	#include <errno.h>   /* ERROR Number Definitions           */
+    	#include <time.h>
+    	#include <string.h>
 	
-	cfmakeraw(&t);
-
-	t.c_cflag |= (CLOCAL | CREAD);
-	cfsetspeed(&t,B115200);
-
-	if(tcsetattr(fd,TCSANOW,&t))
-		perror("failed tcsetatribute");
-
-
-	char buf[10];
-	unsigned char data[10];
-	unsigned short dist = 0;
-	unsigned char ver[4]={0X5A, 0x04, 0x01, 0x00};
-	int ct;
-	while(1)
-	{	
+	void main(void)
+    	{
+        	int fd;/*File Descriptor*/
 		
-		//write(fd,"AT\r\n",4);
-		//write(fd,ver,4);
-		//while(*buf != '\0')
-		//{
-		if((ct = read(fd,(void*)data,10)) < 0 )
-			perror("Failed to read data");
-		//}
-                
-		//printf("%d PORT DATA: %s\n\r",ct, buf);
-		/*
-		while(*buf == 0x59 && *(buf+1) == 0x59)		
-		printf("distance: %d cm\n\r",(short)(((0x0000 | *(buf+3)) << 8) | (0x0000 | *(buf+2))));
-		*/
+		printf("\n +----------------------------------+");
+		printf("\n |        Serial Port Read          |");
+		printf("\n +----------------------------------+");
+
+		/*------------------------------- Opening the Serial Port -------------------------------*/
+
+		/* Change /dev/ttyUSB0 to the one corresponding to your system */
+
+        	fd = open("/dev/ttyUSB0",O_RDWR | O_NOCTTY);	/* ttyUSB0 is the FT232 based USB2SERIAL Converter   */
+			   					/* O_RDWR   - Read/Write access to serial port       */
+								/* O_NOCTTY - No terminal will control the process   */
+								/* Open in blocking mode,read will wait              */
+									
+									                                        
+									
+        	if(fd == -1)						/* Error Checking */
+            	   printf("\n  Error! in Opening ttyUSB0  ");
+        	else
+            	   printf("\n  ttyUSB0 Opened Successfully ");
+
+	
+		/*---------- Setting the Attributes of the serial port using termios structure --------- */
 		
-		printf("%x%x%x%x\n\r",data[0],data[1],data[2],data[3]);
+		struct termios SerialPortSettings;	/* Create the structure                          */
+
+		tcgetattr(fd, &SerialPortSettings);	/* Get the current attributes of the Serial port */
+
+		/* Setting the Baud rate */
+		cfsetispeed(&SerialPortSettings,B115200); /* Set Read  Speed as 9600       B9600                */
+		cfsetospeed(&SerialPortSettings,B115200); /* Set Write Speed as 9600                       */
+
+		/* 8N1 Mode */
+		SerialPortSettings.c_cflag &= ~PARENB;   /* Disables the Parity Enable bit(PARENB),So No Parity   */
+		SerialPortSettings.c_cflag &= ~CSTOPB;   /* CSTOPB = 2 Stop bits,here it is cleared so 1 Stop bit */
+		SerialPortSettings.c_cflag &= ~CSIZE;	 /* Clears the mask for setting the data size             */
+		SerialPortSettings.c_cflag |=  CS8;      /* Set the data bits = 8                                 */
 		
-		//memset(buf,'\0',sizeof(buf));
+		SerialPortSettings.c_cflag &= ~CRTSCTS;       /* No Hardware flow Control                         */
+		SerialPortSettings.c_cflag |= CREAD | CLOCAL; /* Enable receiver,Ignore Modem Control lines       */ 
+		
+		
+		SerialPortSettings.c_iflag &= ~(IXON | IXOFF | IXANY);          /* Disable XON/XOFF flow control both i/p and o/p */
+		SerialPortSettings.c_iflag &= ~(ICANON | ECHO | ECHOE | ISIG);  /* Non Cannonical mode                            */
+
+		SerialPortSettings.c_oflag &= ~OPOST;/*No Output Processing*/
+		
+		/* Setting Time outs */
+		//SerialPortSettings.c_cc[VMIN] = 10; /* Read at least 10 characters */
+		//
+		
+		SerialPortSettings.c_cc[VTIME] = 0; /* Wait indefinetly   */
+
+
+		if((tcsetattr(fd,TCSANOW,&SerialPortSettings)) != 0) /* Set the attributes to the termios structure*/
+		    printf("\n  ERROR ! in Setting attributes");
+		else
+                    printf("\n  BaudRate = 9600 \n  StopBits = 1 \n  Parity   = none");
+			
+	        /*------------------------------- Read data from serial port -----------------------------*/
+
+		
+
+		
+
+		unsigned char read_buffer[32];   /* Buffer to store the data received              */
+		int  bytes_read = 0;    /* Number of bytes read by the read() system call */
+ 		int i = 0;
+
+		while(1){
+		
+		tcflush(fd, TCIFLUSH);   /* Discards old data in the rx buffer            */
+
+		bytes_read = read(fd,&read_buffer,10); /* Read the data                   */
+		
+		if(read_buffer[0] != 0x59)
+		  continue;	
+		  
+		system("clear"); 
+		  
+		printf("\n\n  Bytes Rxed -%d", bytes_read); /* Print the number of bytes read */
+		printf("\n\n  ");
+
+		for(i=0;i<bytes_read;i++)	 /*printing only the received characters*/
+		    printf("%x|",read_buffer[i]);
+	
+		printf("\n +----------------------------------+\n\n\n");
+		
+		memset((void*)read_buffer,'\0',sizeof(read_buffer));
 		sleep(1);
-	}
+		
+		}
+		close(fd); /* Close the serial port */
 
-	return 0;
-}
-
-
+    	}
