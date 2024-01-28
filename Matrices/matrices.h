@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+
+
 typedef struct{
     int row;
     int col;
@@ -10,9 +12,12 @@ typedef struct{
 }Matrix;
 
 Matrix create_mat(int row, int col);
-double norm(Matrix mat);
+Matrix fill_matrix(Matrix mat, int type);
 
-Matrix fill_matrix(Matrix mat);
+
+double norm(Matrix mat);
+Matrix mat_dot(Matrix A, Matrix B, Matrix C);
+Matrix mat_cross(Matrix A, Matrix B, Matrix C);
 
 int matrix_free(Matrix mat);
 void print_Matrix(Matrix *_matrix);
