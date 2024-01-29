@@ -1,5 +1,5 @@
-#ifndef _MISC_H_
-#define _MISC_H_
+#ifndef _MATRICES_H_
+#define _MATRICES_H_
 
 #include <stdio.h>
 

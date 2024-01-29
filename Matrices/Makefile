@@ -1,6 +1,6 @@
 CC = gcc
-DEPS = matrices.h -lm
-OBJ = main.o matrices.o 
+DEPS = matrices.h functions.h
+OBJ = main.o matrices.o functions.o
 CFLAGS = -I. 
 LIBS=-lm
 
