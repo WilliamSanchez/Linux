@@ -1,6 +1,12 @@
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
 #include <functions.h>
 
-#include <math.h>
+
 
 Matrix euler2DCM(double *euler, Matrix DCM)
 {
@@ -102,3 +108,124 @@ double quat2euler(double *quat, double *euler)
 
     return (*euler);
 }
+
+
+Matrix DCM_Angular(double *gyro, Matrix qDCM)
+{
+
+    double Wx, Wy, Wz;
+
+     Wx=gyro[0]; Wy= gyro[1]; Wz=gyro[2];
+     
+     qDCM.data[0][0]=0.0; qDCM.data[0][1]=-Wx; qDCM.data[0][2]=-Wy; qDCM.data[0][3]=-Wz;
+     qDCM.data[1][0]=Wx;  qDCM.data[1][1]=0.0; qDCM.data[1][2]=Wz;  qDCM.data[1][3]=-Wy;
+     qDCM.data[2][0]=Wy;  qDCM.data[2][1]=-Wz; qDCM.data[2][2]=0.0; qDCM.data[2][3]=Wx;
+     qDCM.data[3][0]=Wz;  qDCM.data[3][1]=Wy;  qDCM.data[3][2]=-Wx; qDCM.data[3][3]=0.0;
+     
+    return (qDCM);
+
+}
+
+
+double rungeKutta(Matrix DCM, double *gyro, double *quat, double delta, double *newquat)
+{
+
+   double k1[4], k2[4], k3[4], k4[4];
+   double q1[4], q2[4], q3[4];
+   double gyro1[3], gyro2[3];
+   
+   for (int i=0; i<3; i++)
+   {
+      gyro1[i] = gyro[i]+0.5*delta;
+      gyro2[i] = gyro[i]+delta;
+   }
+   
+   DCM_Angular(gyro, DCM); 
+   mat_dot_vector(DCM,quat, k1);  
+   
+   print_Matrix(&DCM); 
+   
+       printf("\n-------------\n");
+   
+   for (int i=0; i<4; i++)
+   {
+      q1[i] = quat[i]+0.5*k1[i];
+      printf("%f ",k1[i]);
+   }
+
+  printf("\nQ1 -------------\n");
+  printf("\n\r");
+     
+   DCM_Angular(gyro1, DCM);   
+   mat_dot_vector(DCM, q1, k2);
+   
+    
+  print_Matrix(&DCM); 
+   
+       printf("\n-------------\n");
+   
+   
+   for (int i=0; i<4; i++)
+   {
+      q2[i] = quat[i]+0.5*k2[i];
+      printf("%f ",k2[i]);
+   }
+
+    printf("\nQ2 -------------\n");
+  printf("\n\r");
+
+  
+   DCM_Angular(gyro1, DCM);  
+    
+   mat_dot_vector(DCM,q2, k3);
+   
+     print_Matrix(&DCM); 
+   
+       printf("\n-------------\n");
+   
+   for (int i=0; i<4; i++)
+   {
+      q3[i] = quat[i]+k3[i];
+      printf("%f ",k3[i]);
+   }
+   
+
+    printf("\nQ3 -------------\n");
+  printf("\n\r");
+
+
+   DCM_Angular(gyro2, DCM);   
+   mat_dot_vector(DCM,q3, k4);
+   
+        print_Matrix(&DCM); 
+   
+       printf("\n-------------\n");
+   
+   for (int i=0; i<4; i++)
+   {
+      printf("%f ",k4[i]);
+   }
+ 
+     printf("\nQ4 -------------\n");
+  printf("\n\r");
+ 
+    for (int i=0; i<4; i++)
+   {
+      newquat[i] = quat[i]+delta*(k1[i]+2*k2[i]+2*k3[i] + k4[i])/6;
+      printf("%f ",newquat[i]);
+   }
+   
+       
+   printf("\n-------------\n");
+  printf("\n\r");
+ 
+ 
+  print_Matrix(&DCM);
+ 
+    return (*newquat);
+   
+}
+
+
+
+

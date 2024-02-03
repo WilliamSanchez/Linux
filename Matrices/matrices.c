@@ -1,10 +1,11 @@
-#include <matrices.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <math.h>
+
+#include <matrices.h>
 
 Matrix create_mat(int row, int col)
 {
@@ -43,6 +44,18 @@ Matrix mat_dot(Matrix A, Matrix B, Matrix C)
       C.data[i][j] += A.data[i][k] * B.data[k][j];
 
    return (C);
+}
+
+double mat_dot_vector(Matrix A, double *B, double *C)
+{
+  int i,j,k;
+  
+  for(i=0;i<A.row;i++)
+  for(k=0, C[i]=0.0; k<A.col; k++)
+      C[i] += A.data[i][k] * B[k];
+
+   return (*C);
+
 }
 
 double norm(Matrix mat)
