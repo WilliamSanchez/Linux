@@ -25,21 +25,6 @@ Matrix euler2DCM(double *euler, Matrix DCM)
 }
 
 
-Matrix quat2DCM(double *quat, Matrix DCM)
-{
-   
-    double q1,q2,q3,q4;
-   
-    q1 = quat[0]; q2 = quat[1];  q3 = quat[2];  q4 = quat[3]; 
-   
-    DCM.data[0][0]= q1*q1+q2*q2-q3*q3-q4*q4;	DCM.data[0][1]= 2*(q1*q3-q2*q4);		DCM.data[2][0]= 2*(q1*q3+q2*q4);
-    DCM.data[1][0]= 2*(q2*q3+q1*q4);		DCM.data[1][1]= q1*q1-q2*q2+q3*q3-q4*q4;	DCM.data[2][1]= 2*(q3*q4-q1*q2);
-    DCM.data[2][0]= 2*(q2*q4-q1*q3);		DCM.data[2][1]= 2*(q1*q2+q3*q4);		DCM.data[2][2]= q1*q1-q2*q2-q3*q3+q4*q4;
-   
-   return (DCM);
-}
-
-
 double DCM2quat(Matrix DCM, double *quat)
 {
    double q1,q2,q3,q4;
@@ -75,14 +60,29 @@ double euler2quat(double *euler, double *quat)
     return (*quat);
 }
 
+Matrix quat2DCM(double *quat, Matrix DCM)
+{
+   
+    double al,qx,qy,qz;
+   
+    al = quat[0]; qx = quat[1];  qy = quat[2];  qz = quat[3]; 
+   
+    DCM.data[0][0]= al*al+qx*qx-qy*qy-qz*qz;	DCM.data[0][1]= 2*(qx*qy+al*qz);		DCM.data[0][2]= 2*(qx*qz-qy*al);
+    DCM.data[1][0]= 2*(qx*qy-qz*al);		DCM.data[1][1]= al*al-qx*qx+qy*qy-qz*qz;	DCM.data[1][2]= 2*(qy*qz+al*qx);
+    DCM.data[2][0]= 2*(qx*qz+al*qy);		DCM.data[2][1]= 2*(qy*qz-al*qx);		DCM.data[2][2]= al*al-qx*qx-qy*qy+qz*qz;
+   
+   return (DCM);
+}
+
+
 double quat2euler(double *quat, double *euler)
 {
 
     double roll, pitch, yaw;
-    double q1,q2,q3,q4;
+    double q0,q1,q2,q3;
     double M23, M33, M13, M12, M11;
     
-    q1 = quat[0]; q2 = quat[1];  q3 = quat[2];  q4 = quat[3];
+    q0 = quat[0]; q1 = quat[1];  q2 = quat[2];  q3 = quat[3];
 
 /*    
     M23 = 2*q3*q4 + 2*q1*q2; 		//2*(q1*q3+q2*q4);
@@ -94,11 +94,11 @@ double quat2euler(double *quat, double *euler)
 */
 
 
-    M23 = 2*(q1*q3+q2*q4);
-    M33 = q1*q1-q2*q2-q3*q3+q4*q4;
-    M13 = 2*(q3*q4-q1*q2);
-    M12 = 2*(q2*q3-q1*q4);
-    M11 = q1*q1+q2+q2-q3*q3-q4*q4;
+    M23 = 2*(q2*q3+q0*q1);
+    M33 = q0*q0-q2*q2-q1*q1+q3*q3;
+    M13 = 2*(q1*q3-q2*q0);
+    M12 = 2*(q1*q2-q0*q3);
+    M11 = q1*q1+q0*q0-q3*q3-q2*q2;
 
    roll=atan2(M23,M33);
    pitch = atan2(-M13,sqrt(1-M13*M13));
@@ -115,7 +115,7 @@ Matrix DCM_Angular(double *gyro, Matrix qDCM)
 
     double Wx, Wy, Wz;
 
-     Wx=gyro[0]; Wy= gyro[1]; Wz=gyro[2];
+     Wx=gyro[0]*0.5; Wy= gyro[1]*0.5; Wz=gyro[2]*0.5;
      
      qDCM.data[0][0]=0.0; qDCM.data[0][1]=-Wx; qDCM.data[0][2]=-Wy; qDCM.data[0][3]=-Wz;
      qDCM.data[1][0]=Wx;  qDCM.data[1][1]=0.0; qDCM.data[1][2]=Wz;  qDCM.data[1][3]=-Wy;
@@ -130,102 +130,83 @@ Matrix DCM_Angular(double *gyro, Matrix qDCM)
 double rungeKutta(Matrix DCM, double *gyro, double *quat, double delta, double *newquat)
 {
 
+   printf("\n-------------\n");
+   
+   double antquat[4];
+   
+ 
    double k1[4], k2[4], k3[4], k4[4];
    double q1[4], q2[4], q3[4];
    double gyro1[3], gyro2[3];
    
+   double normquat, normnewquat;
+
+   normquat = norm(quat, 4);
+
+
+   antquat[0]=quat[0]/normquat; antquat[1]=quat[1]/normquat;
+   antquat[2]=quat[2]/normquat; antquat[3]=quat[3]/normquat;
+   
+   
+   
    for (int i=0; i<3; i++)
    {
-      gyro1[i] = gyro[i]+0.5*delta;
-      gyro2[i] = gyro[i]+delta;
+      gyro1[i] = gyro[i];//+0.5*delta;
+      gyro2[i] = gyro[i];//+delta;
    }
+   
+   // Q0
    
    DCM_Angular(gyro, DCM); 
-   mat_dot_vector(DCM,quat, k1);  
-   
-   print_Matrix(&DCM); 
-   
-       printf("\n-------------\n");
+   mat_dot_vector(DCM,antquat, k1);  
    
    for (int i=0; i<4; i++)
-   {
-      q1[i] = quat[i]+0.5*k1[i];
-      printf("%f ",k1[i]);
+   {  
+      k1[i] = delta*k1[i];
+      q1[i] = antquat[i]+0.5*k1[i];
    }
-
-  printf("\nQ1 -------------\n");
-  printf("\n\r");
      
+   // Q1  
    DCM_Angular(gyro1, DCM);   
    mat_dot_vector(DCM, q1, k2);
    
-    
-  print_Matrix(&DCM); 
-   
-       printf("\n-------------\n");
-   
    
    for (int i=0; i<4; i++)
    {
-      q2[i] = quat[i]+0.5*k2[i];
-      printf("%f ",k2[i]);
+      k2[i] = delta*k2[i];
+      q2[i] = antquat[i]+0.5*k2[i];
    }
 
-    printf("\nQ2 -------------\n");
-  printf("\n\r");
-
-  
-   DCM_Angular(gyro1, DCM);  
-    
+   //Q2
+   DCM_Angular(gyro1, DCM);      
    mat_dot_vector(DCM,q2, k3);
-   
-     print_Matrix(&DCM); 
-   
-       printf("\n-------------\n");
+
    
    for (int i=0; i<4; i++)
    {
-      q3[i] = quat[i]+k3[i];
-      printf("%f ",k3[i]);
+      k3[i] = delta*k3[i];
+      q3[i] = antquat[i]+k3[i];
    }
    
-
-    printf("\nQ3 -------------\n");
-  printf("\n\r");
-
-
+   //Q3
+   
    DCM_Angular(gyro2, DCM);   
    mat_dot_vector(DCM,q3, k4);
-   
-        print_Matrix(&DCM); 
-   
-       printf("\n-------------\n");
-   
-   for (int i=0; i<4; i++)
-   {
-      printf("%f ",k4[i]);
-   }
- 
-     printf("\nQ4 -------------\n");
-  printf("\n\r");
  
     for (int i=0; i<4; i++)
    {
-      newquat[i] = quat[i]+delta*(k1[i]+2*k2[i]+2*k3[i] + k4[i])/6;
+      newquat[i] = antquat[i]+delta*(k1[i] + 2*k2[i]+ 2*k3[i] + k4[i])/6;
       printf("%f ",newquat[i]);
    }
-   
-       
-   printf("\n-------------\n");
-  printf("\n\r");
- 
- 
-  print_Matrix(&DCM);
- 
+
+    normnewquat = norm(newquat,4);
+
+    newquat[0]=newquat[0]/normnewquat; newquat[1]=newquat[1]/normnewquat;
+    newquat[2]=newquat[2]/normnewquat; newquat[3]=newquat[3]/normnewquat;   
+
     return (*newquat);
    
 }
-
 
 
 

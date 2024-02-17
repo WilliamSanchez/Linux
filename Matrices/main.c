@@ -23,6 +23,7 @@ int main(){
   double euler1[3];
   double quat[4];
   double quat1[4];
+  double teste[3], testeQ[4];
   
   mat1 = create_mat(3,3);
   mat2 = create_mat(4,4);
@@ -61,16 +62,57 @@ int main(){
   DCM_Angular(euler, mat2);
   
     print_Matrix(&mat2);
-  */
+
   printf("\n-------------\n");
   
    double delta = 0.5;
    
-   double teste[3], testeQ[4];
+   
    teste[0]= 4; teste[1] =2; teste[2]=3;
    testeQ[0]=1; testeQ[1]=2; testeQ[2]=1; testeQ[3]=1;
    
    rungeKutta(mat2, teste, testeQ, delta, quat1);
+    */
+   printf("\n-------------\n");
+   printf("\n-----Quaternion ---\n");
+   
+   quat[0]=1; quat[1]=4; quat[2]=5; quat[3]=8;
+   quat1[0]=3; quat1[1]=1; quat1[2]=5; quat1[3]=7;
+  
+  sumQuat(quat, quat1, testeQ);
+  
+    for(int i=0; i<4; i++)
+  	printf("%f\n\r",testeQ[i]);
+  
+  printf("\n-------------\n");
+  
+    prodQuat(quat1, quat, testeQ);
+  
+    for(int i=0; i<4; i++)
+  	printf("%f\n\r",testeQ[i]);
+  
+  printf("\n-------------\n");
+  
+  double invQ[4];
+  
+    invQuat(quat1,invQ);
+  
+    for(int i=0; i<4; i++)
+  	printf("%f\n\r",invQ[i]);
+  
+   printf("\n-------------\n");
+  
+    prodQuat(quat, invQ, testeQ);
+  
+    for(int i=0; i<4; i++)
+  	printf("%f\n\r",testeQ[i]);
+  
+   printf("\n-------------\n");
+  
+    divQuat(quat,quat1,testeQ);
+  
+    for(int i=0; i<4; i++)
+  	printf("%f\n\r",testeQ[i]);
   
   printf("\n-------------\n");
   

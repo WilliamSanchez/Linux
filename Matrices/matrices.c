@@ -58,12 +58,12 @@ double mat_dot_vector(Matrix A, double *B, double *C)
 
 }
 
-double norm(Matrix mat)
+double norm(double *mat, int size)
 {
 
    double mag = 0.0;
-   for(int j=0; j< mat.row; j++)
-   	mag += mat.data[j][0]*mat.data[j][0];
+   for(int j=0; j< size; j++)
+   	mag += mat[j]*mat[j];
    	
   return sqrt(mag);
 }
@@ -107,6 +107,57 @@ Matrix fill_matrix(Matrix mat, int type)
     return (mat);
 }
 
+
+double sumQuat(double  *quat1, double *quat2, double *quat3)
+{
+   
+   quat3[0] = quat1[0] + quat2[0]; 
+   quat3[1] = quat1[1] + quat2[1];
+   quat3[2] = quat1[2] + quat2[2];
+   quat3[3] = quat1[3] + quat2[3];
+    
+   return (*quat3);
+
+}
+
+double prodQuat(double  *quat1, double *quat2, double *quat3)
+{
+
+   quat3[0] = quat1[0]*quat2[0]-quat1[1]*quat2[1]-quat1[2]*quat2[2]-quat1[3]*quat2[3]; 
+   quat3[1] = quat1[0]*quat2[1]+quat1[1]*quat2[0]+quat1[2]*quat2[3]-quat1[3]*quat2[2];
+   quat3[2] = quat1[0]*quat2[2]-quat1[1]*quat2[3]+quat1[2]*quat2[0]+quat1[3]*quat2[1];
+   quat3[3] = quat1[0]*quat2[3]+quat1[1]*quat2[2]-quat1[2]*quat2[1]+quat1[3]*quat2[0];;
+    
+   return (*quat3);
+   
+}
+
+double divQuat(double  *quat1, double *quat2, double *quat3)
+{
+    double *invQ2 = (double*)malloc(4*sizeof(double));
+    invQuat(quat2, invQ2);
+    prodQuat(quat1,invQ2,quat3);    
+    free(invQ2);
+    
+    return (*quat3);
+
+}
+
+double invQuat(double  *quat1, double *quat2)
+{
+
+   double mag;
+   
+   mag = quat1[0]*quat1[0]+quat1[1]*quat1[1]+quat1[2]*quat1[2]+quat1[3]*quat1[3]; 
+
+   quat2[0] = quat1[0]/mag; 
+   quat2[1] = -quat1[1]/mag;
+   quat2[2] = -quat1[2]/mag;
+   quat2[3] = -quat1[3]/mag;
+    
+   return (*quat2);
+
+}
 
 int matrix_free(Matrix mat)
 {
