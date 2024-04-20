@@ -7,14 +7,20 @@
 #include <functions.h>
 #include <matrices.h>
 
-#define PI 3.14159265358979	
+#define PI 			3.14159265358979
+#define e			0.00335289186		// 1/298.25 
+#define Ro			6.378138E6		// [m]
+#define omega			7.292115E-5		// rad/s
+#define go			9.780327		// m/s²		
 
 #define zeros		0
 #define ones 		1
 #define identity	2
 #define undefined	3
 
-
+#define RE(x)(Ro*(1+e*sin(x)*sin(x))) 
+#define RN(x)(Ro*(1-e*(2-3*sin(x)*sin(x))))
+#define Re(x)(Ro*(1-e*sin(x)*sin(x))) 
 
 int main(){
 
@@ -74,8 +80,16 @@ int main(){
    rungeKutta(mat2, teste, testeQ, delta, quat1);
     */
    printf("\n-------------\n");
-   printf("\n-----Quaternion ---\n");
    
+   printf("\n-----Ro [%f] ---\n",Ro);
+   printf("\n-----omega [%f] ---\n",omega);
+   
+   printf("\n-----RE [%f] ---\n",RE(45*PI/180));
+   printf("\n-----RN [%f] ---\n",RN(45*PI/180));
+   printf("\n-----Re [%f] ---\n",Re(45*PI/180));
+   
+   printf("\n-----Quaternion ---\n");
+   /*
    quat[0]=1; quat[1]=4; quat[2]=5; quat[3]=8;
    quat1[0]=3; quat1[1]=1; quat1[2]=5; quat1[3]=7;
   
@@ -113,7 +127,7 @@ int main(){
   
     for(int i=0; i<4; i++)
   	printf("%f\n\r",testeQ[i]);
-  
+  */
   printf("\n-------------\n");
   
   exit(EXIT_SUCCESS);
