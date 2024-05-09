@@ -1,3 +1,4 @@
 *.o
 modules/*.*
+modules/*.mod.*
 !modules/*.c
