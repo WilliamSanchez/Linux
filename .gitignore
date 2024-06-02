@@ -2,3 +2,5 @@
 modules/*.*
 modules/*.mod.*
 !modules/*.c
+**/*.o
+
