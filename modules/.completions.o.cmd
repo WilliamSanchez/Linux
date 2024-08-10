@@ -19,6 +19,7 @@ deps_/home/william/Documents/programming/ANSI_C/modules/completions.o := \
   include/linux/compiler_attributes.h \
   include/linux/compiler-gcc.h \
     $(wildcard include/config/RETPOLINE) \
+    $(wildcard include/config/GCC_ASM_GOTO_OUTPUT_WORKAROUND) \
     $(wildcard include/config/ARCH_USE_BUILTIN_BSWAP) \
     $(wildcard include/config/SHADOW_CALL_STACK) \
     $(wildcard include/config/KCOV) \

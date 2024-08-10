@@ -5,7 +5,7 @@
 #include <linux/fs.h>
 
 
-static unsigned int major major; /*major number for device*/
+static unsigned int major; /*major number for device*/
 static struct class *squeleton_class;
 static struct cdev squeleton_cdev;
 
@@ -21,7 +21,7 @@ int squeleton_release(struct inode *inode, struct file *filp)
 	return 0;
 }
 
-ssize_t squeleton_read(struct file *filp, const char __user *buf, size_t count, loff_t *offset)
+static ssize_t squeleton_read(struct file *filp, char __user *buf, size_t count, loff_t *offset)
 {
 	pr_info("Nothig to read guy\n");
 	// if(copy_to_user(buff, dataTosend, count)!=0)
@@ -32,7 +32,7 @@ ssize_t squeleton_read(struct file *filp, const char __user *buf, size_t count, 
 	return 0;
 }
 
-ssize_t squeleton_write()
+static ssize_t squeleton_write(struct file *filp, const char __user *buf, size_t len, loff_t *off)
 {
 	ssize_t retval=0;
 	pr_info("Can't accept any dat guy\n");
@@ -41,14 +41,14 @@ ssize_t squeleton_write()
 	//	    retval = -EFAULT;
 	//	    goto end_write;
 	//	}
-	return count;
+	return retval;
 }
 
-struct file_operations squeleton_fops = {
-	open:		squeleton_open,
-	release:	squeleton_release,
-	read:		squeleton_read,
-	write:		squeleton_write,
+static struct file_operations squeleton_fops = {
+	.open=		squeleton_open,
+	.release=	squeleton_release,
+	.read=		squeleton_read,
+	.write=		squeleton_write,
 
 };
 
@@ -70,7 +70,7 @@ static int my_pdrv_probe(struct platform_device *pdev)
 	pr_info("squeleton_char major number = %d\n", major);
 	
 	/* Create device class, visible in /sys/class */
-	squeleton_class = class_create(THIS_MODULE,"squeleton_char_class");
+	squeleton_class = class_create("squeleton_char_class");
 	if(IS_ERR(squeleton_class))
 	{
 		pr_err("Error creating sdma test module clas.\n");
@@ -79,7 +79,7 @@ static int my_pdrv_probe(struct platform_device *pdev)
 	}
 	
 	/* Initialize the char device and tie a file_operaqtions to it */
-	cdev_init(&squeleton_cdev, devt, 1);
+	cdev_init(&squeleton_cdev, &squeleton_fops);
 	
 	squeleton_device = device_create(squeleton_class,
 					 &pdev->dev, 	/* no parent device */
@@ -90,7 +90,7 @@ static int my_pdrv_probe(struct platform_device *pdev)
 	if (IS_ERR(squeleton_device))
 	{
 		pr_err("Error creating sdma test class device.\n");
-		class_destroy(squelton_class);
+		class_destroy(squeleton_class);
 		unregister_chrdev_region(devt, 1);
 		return -1;
 	}
@@ -105,7 +105,7 @@ static int my_pdrv_remove(struct platform_device *pdev)
 	unregister_chrdev_region(MKDEV(major,0),1);
 	device_destroy(squeleton_class, MKDEV(major, 0));
 	cdev_del(&squeleton_cdev);
-	class_destroy(squeelton_class)
+	class_destroy(squeleton_class);
 	
 	pr_info("Squeleton char module loaded\n");
 	return 0;
