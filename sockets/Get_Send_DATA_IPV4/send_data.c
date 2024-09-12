@@ -107,7 +107,8 @@ int main()
       swap64(&cdata.throttle);
       swap64(&cdata.elevator);
       
-      if(sendto(sfd,&cdata,sizeof(cdata),0,(struct sockaddr *)&fgAddr,len) != numBytes)
+      //if(sendto(sfd,&cdata,sizeof(cdata),0,(struct sockaddr *)&fgAddr,len) != numBytes)
+      if(sendto(sfd,"HELLO FROM PROGRAM\r\n",20,0,(struct sockaddr *)&fgAddr,len) != numBytes)
       	 perror("sendto");
       
       if(cont >= 200)

@@ -1,3 +1,12 @@
+/*
+	Two thread are initiated: crank and flywheel. 
+	It is imperative that the crank thread start before
+	the flywheel thread. A completion state is established
+	for each of these threads, with a distint completion 
+	defined for both the crank and the flywheel threads.
+
+*/
+
 #include <linux/completion.h>
 #include <linux/err.h>
 #include <linux/init.h>

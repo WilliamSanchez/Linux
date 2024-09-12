@@ -2,6 +2,9 @@ obj-m += completions.o
 obj-m += driver_squeleton.o
 obj-m += intro_task.o
 obj-m += mutex_example.o
+obj-m += spinlock_example.o
+obj-m += tasklet_example.o
+obj-m += workqueue_example.o
 
 PWD := $(CURDIR)
 
