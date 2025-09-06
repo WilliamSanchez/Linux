@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 	   printf("I am in the parent process, wrote %d\n",data_processed);sleep(1);
            exit(EXIT_SUCCESS);
   	}
-
+	printf("\n==========================\n");
     }
     exit(EXIT_SUCCESS);
 }
