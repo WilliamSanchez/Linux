@@ -1,0 +1,49 @@
+
+
+RUN apt-get update && \
+    apt-get -y install g++
+
+# "COMPILING E2AP Wrapper"
+RUN cd e2ap && \
+    gcc -c -fPIC -Iheaders/ lib/*.c wrapper.c && \
+    gcc *.o -shared -o libe2apwrapper.so && \
+    cp libe2apwrapper.so /usr/local/lib/ && \
+    mkdir /usr/local/include/e2ap && \
+    cp wrapper.h headers/*.h /usr/local/include/e2ap && \
+    ldconfig
+
+# "COMPILING E2SM KPM Wrapper"
+RUN cd e2sm_kpm && \
+    gcc -c -fPIC -Iheaders/ lib/*.c kpmwrapper.c && \
+    gcc *.o -shared -o libe2smkpmwrapper.so && \
+    cp libe2smkpmwrapper.so /usr/local/lib/ && \
+    mkdir /usr/local/include/e2sm_kpm && \
+    cp kpmwrapper.h headers/*.h /usr/local/include/e2sm_kpm && \
+    ldconfig
+
+# "COMPILING E2SM RC Wrapper"
+RUN cd e2sm_rc && \
+    gcc -c -fPIC -Iheaders/ lib/*.c rcwrapper.c && \
+    gcc *.o -shared -o libe2smrcwrapper.so && \
+    cp libe2smrcwrapper.so /usr/local/lib/ && \
+    mkdir /usr/local/include/e2sm_rc && \
+    cp rcwrapper.h headers/*.h /usr/local/include/e2sm_rc && \
+    ldconfig
+
+
+RUN cd f1ap && \
+    gcc -c -fPIC -Iheaders/ lib/*.c wrapper.c && \
+     gcc *.o -shared -o libf1apwrapper.so && \
+    cp libf1apwrapper.so /usr/local/lib/ && \
+    mkdir /usr/local/include/f1ap && \
+    cp wrapper.h headers/*.h /usr/local/include/f1ap && \
+    ldconfig \
+    cp -r  /usr/include/x86_64-linux-gnu/c++/9/bits /usr/include/c++/9
+
+RUN g++ -std=c++17 /lite/src/*.cpp  -I /lite/src/ -I /lite/e2ap/headers -I /lite/e2sm_kpm/headers -I /lite/e2sm_rc/headers -o bouncer-xapp -lricxfcpp -lrmr_si -lpthread -lm -lboost_system -lcrypto -lssl -lcpprest -lpistache -lnlohmann_json_schema_validator -le2apwrapper -le2smrcwrapper -le2smrcwrapper
+
+ENV  RMR_SRC_ID=service-ricxapp-du-rmr.ricxapp:4560
+ENV LD_LIBRARY_PATH=/usr/local/lib
+ENV C_INCLUDE_PATH=/usr/local/include
+ENTRYPOINT ["env","LD_LIBRARY_PATH=/usr/local/lib","./entripoint.sh"]
+#ENTRYPOINT ["env","LD_LIBRARY_PATH=/usr/local/lib","f1apHelper/f1apServer","./kpimon"]
