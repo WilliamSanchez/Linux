@@ -43,6 +43,11 @@
 #include "E2SM-RC-ControlOutcome-Format1-Item.h"
 #include "NR-CGI.h"
 
+#include "RANFunctionDefinition-EventTrigger.h"
+#include "RANFunctionDefinition-EventTrigger-Style-Item.h"
+#include "RANFunctionDefinition-EventTrigger-CallProcess-Item.h"
+#include "RANFunctionDefinition-EventTrigger-Breakpoint-Item.h"
+
 #include "E2SM-RC-ActionDefinition.h"
 #include "E2SM-RC-ActionDefinition-Format3.h"
 #include "E2SM-RC-ActionDefinition-Format3-Item.h"
@@ -53,12 +58,36 @@
 #include "RANFunctionDefinition-Insert.h"
 #include "RANFunctionDefinition-Insert-Item.h"
 #include "RANFunctionDefinition-Insert-Indication-Item.h"
+
+#include "RANFunctionDefinition-Control.h"
+#include "RANFunctionDefinition-Control-Item.h"
+#include "RANFunctionDefinition-Control-Action-Item.h"
+
+#include "E2SM-RC-EventTrigger.h"
+#include "E2SM-RC-EventTrigger-Format2.h"
+#include "RIC-CallProcessType-ID.h"
+#include "RIC-CallProcessBreakpoint-ID.h"
+
+#include "E2SM-RC-EventTrigger-Format5.h"
+#include "EventTrigger-UEevent-Info.h"
+#include "EventTrigger-UEevent-Info-Item.h"
+#include "EventTrigger-UE-Info.h"
+#include "EventTrigger-UE-Info-Item.h"
+#include "EventTrigger-UE-Info-Item-Choice-Individual.h"
+#include "EventTrigger-UE-Info-Item-Choice-Group.h"
+#include "EventTrigger-Cell-Info.h"
+#include "EventTrigger-Cell-Info-Item.h"
+#include "EventTrigger-Cell-Info-Item-Choice-Individual.h"
+#include "EventTrigger-Cell-Info-Item-Choice-Group.h"
+#include "RIC-EventTrigger-Cell-ID.h"
+
+#include "PLMNIdentity.h"
+#include "EUTRACellIdentity.h"
+
 #include "RANParameter-Definition.h"
 #include "InsertIndication-RANParameter-Item.h"
 #include "RANParameter-ID.h"
 #include "RANParameter-Name.h"
-
-
 
 typedef struct encode_rc_act_Def_result{
 	int * array;
@@ -87,13 +116,14 @@ extern ssize_t e2sm_encode_ric_control_header_qos(void *buffer, size_t buf_size,
 
 extern ssize_t e2sm_encode_ric_control_message(void *buffer, size_t buf_size, long targetPrimaryCell, long targetCell, long nrOrEUtraCell, long nrCGIOrECGI, void *ranParameterValue,  size_t  ranParameterValue_size);
 
-extern ssize_t e2sm_encode_ric_control_message_qos(
-        void *buffer, size_t buf_size,
-        long drb_id, long qos_flow_id, long five_qi, long priority_level
-);
+extern ssize_t e2sm_encode_ric_control_message_qos( void *buffer, size_t buf_size, long drb_id, long qos_flow_id, long five_qi, long priority_level);
 
 struct encode_rc_act_Def_result encode_rc_action_Definition(const char *_hex_values, int determine);
 int e2sm_encode_ric_insert_definition_format3(unsigned char *buf, size_t *buf_size, char **id_tmp , size_t measIdcount, long ric_style_type,  unsigned char  *p, unsigned char *nR);
+
+struct encode_rc_act_Def_result encode_rc_eventrigger(const char *_hex_values, int determine);
+int e2sm_encode_ric_encode_rc_eventrigger_format2(unsigned char *buf, size_t *buf_size);
+int e2sm_encode_ric_encode_rc_eventrigger_format5(unsigned char *buf, size_t *buf_size);
 
 extern E2SM_RC_ControlOutcome_t* e2sm_decode_ric_call_process_outcome(void *buffer, size_t buf_size);
 extern void e2sm_free_ric_call_process_outcome(E2SM_RC_ControlOutcome_t* controlOutcome) ;
