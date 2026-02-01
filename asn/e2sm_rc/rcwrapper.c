@@ -3,6 +3,196 @@
 #include "OCTET_STRING.h"
 
 
+
+struct encode_rc_act_Def_result encode_rc_eventrigger(const char *_hex_values, int determine)
+{
+        encode_rc_act_Def_result_t res;	
+
+        int BUFFER_SIZE=10240;
+
+        /*      FORMAT 2        */        
+        /*
+        unsigned char bufFormat2[BUFFER_SIZE];
+        size_t buf_sizeFormat2 = BUFFER_SIZE;
+
+        int encodedLengthFormat2 = e2sm_encode_ric_encode_rc_eventrigger_format2(&bufFormat2[0], &buf_sizeFormat2);
+
+        printf("\n");
+	int rcarrayFormat2[encodedLengthFormat2];
+        for(int i=0;i<encodedLengthFormat2;i++){
+                        printf("%d ",(int)bufFormat2[i]);
+			rcarrayFormat2[i]=(int)bufFormat2[i];
+        }
+        printf("\n");
+        */
+
+        /*      FORMAT 5        */
+        
+        unsigned char bufFormat5[BUFFER_SIZE];
+        size_t buf_sizeFormat5 = BUFFER_SIZE;
+
+        int encodedLengthFormat5 = e2sm_encode_ric_encode_rc_eventrigger_format5(&bufFormat5[0], &buf_sizeFormat5);
+
+        printf("\n");
+	int rcarrayFormat5[encodedLengthFormat5];
+        for(int i=0;i<encodedLengthFormat5;i++){
+                        printf("%d ",(int)bufFormat5[i]);
+			rcarrayFormat5[i]=(int)bufFormat5[i];
+        }
+        printf("\n");
+        
+
+	switch(determine){
+		case 1:
+			//res.array=rcarrayFormat3;
+			//res.length=encodedLengthFormat3; //-8;//removing hardcoded plmn and cellid
+			return res;
+		case 2:
+                        //res.array = rcarrayFormat2;
+			//res.length= encodedLengthFormat2;//-8;//removing hardcoded plmn and cellid
+			return res;
+		case 3:
+			//res.array=arrayFormat3ById;
+			//res.length=encodedLengthFormat3ById;
+			//return res;
+		case 4:
+			//res.array=arrayFormat3ByName;
+			//res.length=encodedLengthFormat3ByName;
+			//return res;
+                case 5:
+			res.array=rcarrayFormat5;
+			res.length=encodedLengthFormat5;
+			return res;
+			break;
+
+	}
+
+        return res;
+}
+
+int e2sm_encode_ric_encode_rc_eventrigger_format2(unsigned char *buf, size_t *buf_size)
+{
+        E2SM_RC_EventTrigger_t* evenTrigger = (E2SM_RC_EventTrigger_t*)calloc(1,sizeof(E2SM_RC_EventTrigger_t));
+         if (!evenTrigger ) {
+                fprintf(stderr, "alloc RIC Event Trtigger format 2 failed\n");
+                return -1;
+        }
+
+        evenTrigger->ric_eventTrigger_formats.present = E2SM_RC_EventTrigger__ric_eventTrigger_formats_PR_eventTrigger_Format2;
+
+        evenTrigger->ric_eventTrigger_formats.choice.eventTrigger_Format2 = (E2SM_RC_EventTrigger_Format2_t*)calloc(1,sizeof(E2SM_RC_EventTrigger_Format2_t));
+        evenTrigger->ric_eventTrigger_formats.choice.eventTrigger_Format2->ric_callProcessBreakpoint_ID = 1; 
+        evenTrigger->ric_eventTrigger_formats.choice.eventTrigger_Format2->ric_callProcessType_ID = 1;
+                
+        char errbuf[128];
+        size_t errbuf_len = 128;
+
+        int ret_constr = asn_check_constraints(&asn_DEF_E2SM_RC_EventTrigger, (void *)evenTrigger, errbuf, &errbuf_len);
+        if(ret_constr){
+                fprintf(stderr,"Constraints failed for encoding subscription request, %s", strerror(errno));
+                return -1;
+        }
+        
+        printf("Estructura RANFunctionDefiniton\n");
+        asn_fprint(stdout, &asn_DEF_E2SM_RC_EventTrigger, evenTrigger);
+        asn_enc_rval_t encode_result = asn_encode_to_buffer(0,ATS_ALIGNED_CANONICAL_PER,&asn_DEF_E2SM_RC_EventTrigger,evenTrigger, buf, *buf_size);        
+        
+        if (encode_result.encoded == -1) {
+                fprintf(stderr, "Cannot encode %s: %s in line %d, file %s\n", encode_result.failed_type->name, strerror(errno),  __LINE__, __FILE__);
+                return -1;
+        }
+        else {
+                fprintf(stderr, "successfully\n");
+                return encode_result.encoded;
+        }
+        
+}
+
+int e2sm_encode_ric_encode_rc_eventrigger_format5(unsigned char *buf, size_t *buf_size)
+{
+        E2SM_RC_EventTrigger_t* evenTrigger = (E2SM_RC_EventTrigger_t*)calloc(1,sizeof(E2SM_RC_EventTrigger_t));
+         if (!evenTrigger ) {
+                fprintf(stderr, "alloc RIC Event Trtigger format 2 failed\n");
+                return -1;
+        }
+        
+        EventTrigger_Cell_Info_t **infoCell = (EventTrigger_Cell_Info_t**)calloc(1,sizeof(EventTrigger_Cell_Info_t*));
+        //EventTrigger_UE_Info_t **infoUe = (EventTrigger_UE_Info_t**)calloc(1,sizeof(EventTrigger_UE_Info_t*));
+
+        evenTrigger->ric_eventTrigger_formats.present = E2SM_RC_EventTrigger__ric_eventTrigger_formats_PR_eventTrigger_Format5;
+        evenTrigger->ric_eventTrigger_formats.choice.eventTrigger_Format5 = (E2SM_RC_EventTrigger_Format5_t*)calloc(1,sizeof(E2SM_RC_EventTrigger_Format5_t));
+        evenTrigger->ric_eventTrigger_formats.choice.eventTrigger_Format5->onDemand = 0;
+
+                //get plmn id during run time of kpimon
+        //unsigned char p[] = {0x00, 0xF1, 0x10};
+        unsigned char p[] = {0x00, 0xF1, 0x10};
+
+        //get nr cell id for 5g cell or eutra cell id for 4g cell
+        //unsigned char nR []= {0x12, 0x34, 0x56, 0x00, 0x10};
+        //unsigned char nR []= {0x00, 0x00, 0x01, 0x00, 0x10};
+
+        //      Radisys 1.7.10.127    /
+        unsigned char nR []= {0x00, 0x00, 0x00, 0x00, 0x10};
+
+        NR_CGI_t *NRG = (NR_CGI_t*)calloc(1,sizeof(NR_CGI_t));
+
+        PLMNIdentity_t *PLMN = (PLMNIdentity_t *)calloc(1,sizeof(PLMNIdentity_t));
+        PLMN->buf = (uint8_t*)calloc(3,sizeof(uint8_t));
+        memcpy(PLMN->buf,p,3);
+        PLMN->size = 3;
+
+        NRCellIdentity_t *NRC = (NRCellIdentity_t*)calloc(1,sizeof(NRCellIdentity_t));
+        NRC->buf = (uint8_t*)calloc(5,sizeof(uint8_t));
+        memcpy(NRC->buf,nR,5);
+        NRC->size = 5;
+        NRC->bits_unused = 4;
+
+        NRG->nRCellIdentity = *NRC;
+        NRG->pLMNIdentity = *PLMN;
+
+        CGI_t *globalCell = (CGI_t*)calloc(1,sizeof(CGI_t));
+
+        globalCell->choice.nR_CGI = NRG;
+        globalCell->present = CGI_PR_nR_CGI;
+
+        EventTrigger_Cell_Info_Item_t *cellInfoItem = (EventTrigger_Cell_Info_Item_t*)calloc(1,sizeof(EventTrigger_Cell_Info_Item_t*));
+        cellInfoItem->cellType.present = EventTrigger_Cell_Info_Item__cellType_PR_cellType_Choice_Individual;
+        cellInfoItem->logicalOR = 0;
+        cellInfoItem->cellType.choice.cellType_Choice_Individual =  (EventTrigger_Cell_Info_Item_Choice_Individual_t*)calloc(1,sizeof(EventTrigger_Cell_Info_Item_Choice_Individual_t));
+        cellInfoItem->cellType.choice.cellType_Choice_Individual->cellGlobalID = *globalCell;
+        cellInfoItem->eventTriggerCellID = 1;
+
+        int index = 0;
+        while(index < 1)
+        {
+                infoCell[index] = (EventTrigger_Cell_Info_t*)calloc(1,sizeof(EventTrigger_Cell_Info_t));
+                int resutl1 = ASN_SEQUENCE_ADD(&infoCell[index]->cellInfo_List,cellInfoItem);
+                if(resutl1){
+                      fprintf(stderr,"Constraints failed for encoding subscription request, %s", strerror(errno));
+                      return -1;
+                }
+                printf("\n1- Sequence %d\n",infoCell[index]->cellInfo_List.list.count);
+            index++;
+        }
+        
+        evenTrigger->ric_eventTrigger_formats.choice.eventTrigger_Format5->associatedCellInfo = *infoCell;
+        printf("Estructura RANFunctionDefiniton\n");
+        asn_fprint(stdout, &asn_DEF_E2SM_RC_EventTrigger, evenTrigger);
+        
+        asn_enc_rval_t encode_result = asn_encode_to_buffer(0,ATS_ALIGNED_CANONICAL_PER,&asn_DEF_E2SM_RC_EventTrigger,evenTrigger, buf, *buf_size);        
+        
+        if (encode_result.encoded == -1) {
+                fprintf(stderr, "Cannot encode %s: %s in line %d, file %s\n", encode_result.failed_type->name, strerror(errno),  __LINE__, __FILE__);
+                return -1;
+        }
+        else {
+                fprintf(stderr, "successfully\n");
+                return encode_result.encoded;
+        }
+        
+        return -1;
+}
+
 //determine 
 //1 for format1 by id, 2 for format1 by name , 3 for format3 by id, 4 for format3 by name
 //struct encode_act_Def_result encode_action_Definition(const char *hex_values, int determine){
@@ -57,17 +247,17 @@ struct encode_rc_act_Def_result encode_rc_action_Definition(const char *_hex_val
 
         enum asn_transfer_syntax syntax;
         syntax = ATS_ALIGNED_BASIC_PER;
-        //asn_dec_rval_t rval =  aper_decode_complete(NULL, &asn_DEF_E2SM_RC_RANFunctionDefinition, (void**)&e2smrcRanFunctDefinition, hex_buffer, hex_len);
-        asn_dec_rval_t rval =  asn_decode(NULL, syntax, &asn_DEF_E2SM_RC_RANFunctionDefinition, (void**)&e2smrcRanFunctDefinition, hex_buffer, hex_len);
+        asn_dec_rval_t rval =  aper_decode_complete(NULL, &asn_DEF_E2SM_RC_RANFunctionDefinition, (void**)&e2smrcRanFunctDefinition, hex_buffer, hex_len);
+        //asn_dec_rval_t rval =  asn_decode(NULL, syntax, &asn_DEF_E2SM_RC_RANFunctionDefinition, (void**)&e2smrcRanFunctDefinition, hex_buffer, hex_len);
 
         if(rval.code == RC_OK)
         {
                 fprintf(stderr,"[INFO] E2SM RC RAN Function Definiton decode successfull rval.code = %d \n",rval.code);
-                //fprintf(stderr,"[INFO] E2SM RC RAN Function Definiton name = %s\n",e2smrcRanFunctDefinition->ranFunction_Name.ranFunction_ShortName);
-                //fprintf(stderr,"[INFO] E2SM RC RAN Function Definiton OID = %s\n",e2smrcRanFunctDefinition->ranFunction_Name.ranFunction_E2SM_OID);
-                //fprintf(stderr,"[INFO] E2SM RC RAN Function Definiton Description = %s\n",e2smrcRanFunctDefinition->ranFunction_Name.ranFunction_Description);
-                fprintf(stderr,"[INFO] E2SM RC RAN Function Definiton num of elements = %d\n",e2smrcRanFunctDefinition->ranFunctionDefinition_Insert->ric_InsertStyle_List->list.count);
-                asn_fprint(stdout, &asn_DEF_E2SM_RC_RANFunctionDefinition, e2smrcRanFunctDefinition);
+                fprintf(stderr,"[INFO] E2SM RC RAN Function Definiton name = %c%c\n",e2smrcRanFunctDefinition->ranFunction_Name.ranFunction_ShortName.buf[0],e2smrcRanFunctDefinition->ranFunction_Name.ranFunction_ShortName.buf[1]);
+                fprintf(stderr,"[INFO] E2SM RC RAN Function Definiton OID = %c%c\n",e2smrcRanFunctDefinition->ranFunction_Name.ranFunction_E2SM_OID.buf[0],e2smrcRanFunctDefinition->ranFunction_Name.ranFunction_E2SM_OID.buf[1]);
+                fprintf(stderr,"[INFO] E2SM RC RAN Function Definiton Description = %c%c\n",e2smrcRanFunctDefinition->ranFunction_Name.ranFunction_Description.buf[0],e2smrcRanFunctDefinition->ranFunction_Name.ranFunction_Description.buf[1]);
+                fprintf(stderr,"[INFO] E2SM RC RAN Function Definiton num of elements = %d\n",e2smrcRanFunctDefinition->ranFunctionDefinition_Insert->ric_InsertStyle_List->list.size);
+                //asn_fprint(stdout, &asn_DEF_E2SM_RC_RANFunctionDefinition, e2smrcRanFunctDefinition);
 
                 //      ric-InsertStyle-List    //
                 /*
@@ -105,7 +295,6 @@ struct encode_rc_act_Def_result encode_rc_action_Definition(const char *_hex_val
                  //printf("[INFO] E2SM RC RAN Function Definiton decode  failed rval.code = %d \n", rval.code);
                  fprintf(stderr,"[INFO] E2SM RC RAN Function Definiton decode  failed rval.code = %d \n", rval.code);
         }
-        
                
         fprintf(stderr,"[INFO] num elements %d\n",sz3);
         for(int i=0;i<sz3;i++){
@@ -140,31 +329,8 @@ struct encode_rc_act_Def_result encode_rc_action_Definition(const char *_hex_val
                         printf("%d ",(int)bufFormat3[i]);
 			rcarrayFormat3[i]=(int)bufFormat3[i];
         }
-        printf("\n");             
-/*
-        unsigned char bufFormat1ById[BUFFER_SIZE];
-        size_t buf_sizeFormat1ById = BUFFER_SIZE;
+        printf("\n");               
 
-        int encodedLengthFormat1ById = e2sm_encode_ric_action_definition_format1_by_id(&bufFormat1ById[0], &buf_sizeFormat1ById, id_format1, sz1, ricStyleTypeFormat1, granulPeriod, p, nR);
-        printf("\n\n\n");
-	int arrayFormat1ById[encodedLengthFormat1ById];
-        for(int i=0;i<encodedLengthFormat1ById;i++){
-                        //printf("%d ",(int)bufFormat1ById[i]);
-			arrayFormat1ById[i]=(int)bufFormat1ById[i];
-        }
-
-        unsigned char bufFormat3ById[BUFFER_SIZE];
-        size_t buf_sizeFormat3ById = BUFFER_SIZE;
-
-        int encodedLengthFormat3ById = e2sm_encode_ric_action_definition_format3_by_id(&bufFormat3ById[0], &buf_sizeFormat3ById, id_format3, sz3, ricStyleTypeFormat3, granulPeriod);
-        printf("\n\n\n");
-        int arrayFormat3ById[encodedLengthFormat3ById];
-	for(int i=0;i<encodedLengthFormat3ById;i++){
-                        //printf("%d ",(int)bufFormat3ById[i]);
-			arrayFormat3ById[i]=(int)bufFormat3ById[i];
-
-        }
-*/
 	switch(determine){
 		case 1:
 			//res.array=rcarrayFormat3;
@@ -189,6 +355,7 @@ struct encode_rc_act_Def_result encode_rc_action_Definition(const char *_hex_val
 }
 
 int e2sm_encode_ric_insert_definition_format3(unsigned char *buf, size_t *buf_size, char **id_tmp , size_t measIdcount, long ric_style_type,  unsigned char  *p, unsigned char *nR) {
+        
         E2SM_RC_ActionDefinition_t *rcactionDef = (E2SM_RC_ActionDefinition_t *)calloc(1, sizeof(E2SM_RC_ActionDefinition_t));
         if (!rcactionDef) {
                 fprintf(stderr, "alloc RIC ActionDefinition failed\n");
@@ -201,125 +368,98 @@ int e2sm_encode_ric_insert_definition_format3(unsigned char *buf, size_t *buf_si
                 fprintf(stderr, "alloc RIC ActionDefinition failed\n");
                 return -1;
         }
-/*
-        CGI_t *cellGlobal = (CGI_t *)calloc(1, sizeof(CGI_t));
-        if (!cellGlobal) {
-                fprintf(stderr, "alloc RIC ActionDefinition failed\n");
-                return -1;
-        }
 
-        NR_CGI_t *nrCGIs = (NR_CGI_t *)calloc(1, sizeof(NR_CGI_t));
-        if (!nrCGIs) {
-                fprintf(stderr, "alloc RIC ActionDefinition failed\n");
-                return -1;
-        }
-
-        PLMNIdentity_t *PLM=(PLMNIdentity_t *)calloc(1,sizeof(PLMNIdentity_t));
-        PLM->buf=(uint8_t *)calloc(3,sizeof(uint8_t));
-        memcpy(PLM->buf,p, 3);
-        PLM->size=3;
-
-
-        NRCellIdentity_t *NRC=(NRCellIdentity_t *)calloc(1,sizeof(NRCellIdentity_t));
-        NRC->buf=(uint8_t *)calloc(5,sizeof(uint8_t));
-        memcpy(NRC->buf,nR, 5);
-        NRC->size=5;
-        NRC->bits_unused=4;
-
-        nrCGIs->pLMNIdentity=*PLM;
-        nrCGIs->nRCellIdentity=*NRC;
-
-        cellGlobal->present = CGI_PR_nR_CGI;
-        cellGlobal->choice.nR_CGI = nrCGIs;
-
-*/
-
-
-        //MeasurementInfoItem_t **infoItem = (MeasurementInfoItem_t **)calloc(measIdcount, sizeof(MeasurementInfoItem_t *));
         E2SM_RC_ActionDefinition_Format3_Item_t **InsertInfoItem = (E2SM_RC_ActionDefinition_Format3_Item_t  **)calloc(measIdcount, sizeof(E2SM_RC_ActionDefinition_Format3_Item_t *));
-        //int Label_Item_count=1;
-
         
         //long *no_label=(long *) calloc(1,sizeof(long));//not giving label to the cell metrics/// don't know its bheaviour
         //*no_label=0;
         int index = 0;
-        //int c=0;        
-
-        /*      RAN Parameter Definition ID        */
+                /*      RAN Parameter Definition ID        */
         while (index < 1) {
 
-                InsertInfoItem [index] = (E2SM_RC_ActionDefinition_Format3_Item_t *)calloc(1, sizeof(E2SM_RC_ActionDefinition_Format3_Item_t ));
+                InsertInfoItem[index] = (E2SM_RC_ActionDefinition_Format3_Item_t *)calloc(1, sizeof(E2SM_RC_ActionDefinition_Format3_Item_t ));
                 RANParameter_Definition_t *ParamDef=(RANParameter_Definition_t *)calloc(1,sizeof(RANParameter_Definition_t));
-                ParamDef->ranParameter_Definition_Choice = (RANParameter_Definition_Choice_t *)calloc(1,sizeof(RANParameter_Definition_Choice_t));
+                ParamDef->ranParameter_Definition_Choice =(RANParameter_Definition_Choice_t *)calloc(1,sizeof(RANParameter_Definition_Choice_t));
                 ParamDef->ranParameter_Definition_Choice->present =  RANParameter_Definition_Choice_PR_choiceLIST;
 
                 InsertInfoItem[index]->ranParameter_ID = 1;
 
                 char name_format_insert[100];
-                strcpy(name_format_insert,"Unified Access Control Barring Info");
+                strcpy(name_format_insert,"Unified Access Control Barring Info");             
 
-                RANParameter_Name_t *ranNameParameterName = (RANParameter_Name_t*)calloc(1,sizeof(RANParameter_Name_t));
-                ranNameParameterName->buf = (uint8_t*)calloc(1,strlen(name_format_insert));
+                RANParameter_Name_t *ranNameParameterName = (RANParameter_Name_t *)calloc(1,sizeof(RANParameter_Name_t));
+                ranNameParameterName->buf = (uint8_t *)calloc(1,strlen(name_format_insert));
                 memcpy(ranNameParameterName->buf,name_format_insert,strlen(name_format_insert));
                 ranNameParameterName->size = strlen(name_format_insert);
 
-                printf("%s, length %ld\n",ranNameParameterName->buf, ranNameParameterName->size);
+                printf("%s, Length %ld\n",ranNameParameterName->buf, ranNameParameterName->size);
 
-                RANParameter_Definition_Choice_LIST_Item_t **RanParameterList = (RANParameter_Definition_Choice_LIST_Item_t**)calloc(1,sizeof(RANParameter_Definition_Choice_LIST_Item_t *));
-                RanParameterList[0] = (RANParameter_Definition_Choice_LIST_Item_t *)calloc(1,sizeof(RANParameter_Definition_Choice_LIST_Item_t));
-                RanParameterList[0]->ranParameter_name = *ranNameParameterName;
-                RanParameterList[0]->ranParameter_ID = 1;
-                
+                RANParameter_Definition_Choice_LIST_Item_t **RanPareameterList = (RANParameter_Definition_Choice_LIST_Item_t **)calloc(1,sizeof(RANParameter_Definition_Choice_LIST_Item_t*));
+                RanPareameterList[0]  = (RANParameter_Definition_Choice_LIST_Item_t *)calloc(1,sizeof(RANParameter_Definition_Choice_LIST_Item_t));
+                RanPareameterList[0]->ranParameter_name = *ranNameParameterName;
+                RanPareameterList[0]->ranParameter_ID = 1;
+
                 ParamDef->ranParameter_Definition_Choice->choice.choiceLIST = (RANParameter_Definition_Choice_LIST_t*)calloc(1,sizeof(RANParameter_Definition_Choice_LIST_t));
 
-                if(!ParamDef || !ParamDef->ranParameter_Definition_Choice || !ParamDef->ranParameter_Definition_Choice->choice.choiceLIST)
-                        printf("\nErro allocate memory\n");
-
-                int result1 = ASN_SEQUENCE_ADD(&ParamDef->ranParameter_Definition_Choice->choice.choiceLIST->ranParameter_List,RanParameterList[0]);
+                if (!ParamDef || !ParamDef->ranParameter_Definition_Choice || !ParamDef->ranParameter_Definition_Choice->choice.choiceLIST)
+                    printf("\nERRO\n");
+                
+                
+                int result1 = ASN_SEQUENCE_ADD(&ParamDef->ranParameter_Definition_Choice->choice.choiceLIST->ranParameter_List, RanPareameterList[0]);
                 if (result1==-1)
                 {
-                        fprintf(stderr,"Unable to assign memory to add ranParameterDefinition %s",strerror(errno));
+                        fprintf(stderr,"Unable to assign memory to add labelInfoList %s\n",strerror(errno));
                         return -1;
                 }
                 
-                printf("\n1-> Sequence %d",ParamDef->ranParameter_Definition_Choice->choice.choiceLIST->ranParameter_List.list.count);
-                printf("\n1-> Name %s",ParamDef->ranParameter_Definition_Choice->choice.choiceLIST->ranParameter_List.list.array[index]->ranParameter_name.buf);
+                printf("\n1- Sequence %d",ParamDef->ranParameter_Definition_Choice->choice.choiceLIST->ranParameter_List.list.count);
+                printf("\n1- name %s\n",ParamDef->ranParameter_Definition_Choice->choice.choiceLIST->ranParameter_List.list.array[index]->ranParameter_name.buf);
 
-                InsertInfoItem[index]->ranParameter_Definition=ParamDef;
-
-                printf("\n2-> Sequence %d",InsertInfoItem[index]->ranParameter_Definition->ranParameter_Definition_Choice->choice.choiceLIST->ranParameter_List.list.count);
-                printf("\n2-> Name %s",InsertInfoItem[index]->ranParameter_Definition->ranParameter_Definition_Choice->choice.choiceLIST->ranParameter_List.list.array[index]->ranParameter_name.buf);
-
-
-                int result2 = ASN_SEQUENCE_ADD(&actionDefFor3->ranP_InsertIndication_List, InsertInfoItem[index]);
+                InsertInfoItem[index]->ranParameter_Definition = ParamDef;
+                /*
+                int result2 = ASN_SEQUENCE_ADD(&InsertInfoItem[index]->ranParameter_Definition,&ParamDef);
                 if (result2==-1)
+                {
+                        fprintf(stderr,"result2 Unable to assign memory to add labelInfoList %s\n",strerror(errno));
+                        return -1;
+                }
+                */
+                printf("\n2- Sequence %d",InsertInfoItem[index]->ranParameter_Definition->ranParameter_Definition_Choice->choice.choiceLIST->ranParameter_List.list.count);
+                printf("\n2- name %s\n",InsertInfoItem[index]->ranParameter_Definition->ranParameter_Definition_Choice->choice.choiceLIST->ranParameter_List.list.array[index]->ranParameter_name.buf);
+
+                int result3 = ASN_SEQUENCE_ADD(&actionDefFor3->ranP_InsertIndication_List, InsertInfoItem[index]);
+                if (result3==-1)
                 {
                         fprintf(stderr,"Unable to assign memory to add measInfoList %s",strerror(errno));
                         return -1;
                 }
+             
                 index++;
         }
-
-
-        actionDefFor3->ric_InsertIndication_ID = 0;
-
-        rcactionDef->ric_Style_Type = 4;
-        rcactionDef->ric_actionDefinition_formats.present = E2SM_RC_ActionDefinition__ric_actionDefinition_formats_PR_actionDefinition_Format3;
-        rcactionDef->ric_actionDefinition_formats.choice.actionDefinition_Format3 =   actionDefFor3;      
-
+        
         char errbuf[128];
         size_t errbuf_len = 128;
 
-        int ret_constr = asn_check_constraints(&asn_DEF_E2SM_RC_ActionDefinition, (void *) rcactionDef, errbuf, &errbuf_len);
+        actionDefFor3->ric_InsertIndication_ID = 0;
+        printf("\nEstructura RANFunctionDefiniton\n");
+        asn_fprint(stdout, &asn_DEF_E2SM_RC_ActionDefinition_Format3, actionDefFor3);
+        
+
+
+        rcactionDef->ric_Style_Type = 4;
+        rcactionDef->ric_actionDefinition_formats.present = E2SM_RC_ActionDefinition__ric_actionDefinition_formats_PR_actionDefinition_Format3;
+        rcactionDef->ric_actionDefinition_formats.choice.actionDefinition_Format3 =  actionDefFor3;  
+
+        int ret_constr = asn_check_constraints(&asn_DEF_E2SM_RC_ActionDefinition, (void *)rcactionDef, errbuf, &errbuf_len);
         if(ret_constr){
                 fprintf(stderr,"Constraints failed for encoding subscription request, %s", strerror(errno));
                 return -1;
         }
         
-        printf("Print Structure RANFunctionDefinition\n");
-        asn_fprint(stdout,&asn_DEF_E2SM_RC_ActionDefinition,rcactionDef);
-
-        asn_enc_rval_t encode_result = asn_encode_to_buffer(0,ATS_ALIGNED_CANONICAL_PER,&asn_DEF_E2SM_RC_ActionDefinition,rcactionDef, buf, *buf_size);
+        printf("Estructura RANFunctionDefiniton\n");
+        asn_fprint(stdout, &asn_DEF_E2SM_RC_ActionDefinition, rcactionDef);
+        //asn_enc_rval_t encode_result = asn_encode_to_buffer(0,ATS_ALIGNED_CANONICAL_PER,&asn_DEF_E2SM_RC_ActionDefinition,rcactionDef, buf, *buf_size);
+        asn_enc_rval_t encode_result = asn_encode_to_buffer(0,ATS_ALIGNED_CANONICAL_PER,&asn_DEF_E2SM_RC_ActionDefinition_Format3, actionDefFor3, buf, *buf_size);
 
         if (encode_result.encoded == -1) {
                 fprintf(stderr, "Cannot encode %s: %s in line %d, file %s\n", encode_result.failed_type->name, strerror(errno),  __LINE__, __FILE__);
@@ -718,8 +858,7 @@ ssize_t e2sm_encode_nrcgi(NR_CGI_t *nr_cgi, void* plmnIdValue, size_t  plmnId_si
            }
 }
 
-ssize_t e2sm_encode_ric_control_message(void *buffer, size_t buf_size, long targetPrimaryCell,
-                        long targetCell, long nrOrEUtraCell, long nrCGIOrECGI, void* ranParameterValue,size_t  ranParameterValue_size){
+ssize_t e2sm_encode_ric_control_message(void *buffer, size_t buf_size, long targetPrimaryCell, long targetCell, long nrOrEUtraCell, long nrCGIOrECGI, void* ranParameterValue,size_t  ranParameterValue_size){
 
                 E2SM_RC_ControlMessage_t *e2smrcRcControlMsg = (E2SM_RC_ControlMessage_t*)calloc(1, sizeof(E2SM_RC_ControlMessage_t));
         if(!e2smrcRcControlMsg) {
