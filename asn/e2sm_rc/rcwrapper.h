@@ -32,6 +32,7 @@
 #include "RANParameter-ValueType-Choice-List.h"
 #include "UEID.h"
 #include "UEID-GNB.h"
+#include "UEID-GNB-DU.h"
 #include "UEID-GNB-CU-F1AP-ID-List.h"
 #include "UEID-GNB-CU-CP-E1AP-ID-List.h"
 #include "UEID-GNB-CU-CP-F1AP-ID-Item.h"
@@ -42,6 +43,7 @@
 #include "E2SM-RC-ControlOutcome-Format1.h"
 #include "E2SM-RC-ControlOutcome-Format1-Item.h"
 #include "NR-CGI.h"
+#include "GlobalGNB-ID.h"
 
 #include "RANFunctionDefinition-EventTrigger.h"
 #include "RANFunctionDefinition-EventTrigger-Style-Item.h"
@@ -89,6 +91,13 @@
 #include "RANParameter-ID.h"
 #include "RANParameter-Name.h"
 
+#include "E2SM-RC-IndicationHeader.h"
+#include "E2SM-RC-IndicationHeader-Format1.h"
+#include "E2SM-RC-IndicationHeader-Format2.h"
+
+#include "E2SM-RC-IndicationMessage.h"
+
+
 typedef struct encode_rc_act_Def_result{
 	int * array;
 	int length;
@@ -110,11 +119,13 @@ struct uEID {
 };
 
 
-extern ssize_t e2sm_encode_ric_control_header(void *buffer, size_t buf_size,struct uEID *in,long f1AP[],size_t f1AP_len,long e1AP[],size_t e1Ap_len,long ricControlStyleType, long ricControlActionID, void *ranParameterValue, size_t ranParameterValue_size);
+//extern ssize_t e2sm_encode_ric_control_header(void *buffer, size_t buf_size,struct uEID *in,long f1AP[],size_t f1AP_len,long e1AP[],size_t e1Ap_len,long ricControlStyleType, long ricControlActionID, void *ranParameterValue, size_t ranParameterValue_size);
+extern ssize_t e2sm_encode_ric_control_header(void *buffer, size_t buf_size);
 
 extern ssize_t e2sm_encode_ric_control_header_qos(void *buffer, size_t buf_size,struct uEID *in,long f1AP[],size_t f1AP_len,long e1AP[],size_t e1Ap_len,long ricControlStyleType, long ricControlActionID, void *ranParameterValue, size_t ranParameterValue_size, long ricControlDecision);
 
-extern ssize_t e2sm_encode_ric_control_message(void *buffer, size_t buf_size, long targetPrimaryCell, long targetCell, long nrOrEUtraCell, long nrCGIOrECGI, void *ranParameterValue,  size_t  ranParameterValue_size);
+//extern ssize_t e2sm_encode_ric_control_message(void *buffer, size_t buf_size, long targetPrimaryCell, long targetCell, long nrOrEUtraCell, long nrCGIOrECGI, void *ranParameterValue,  size_t  ranParameterValue_size);
+extern ssize_t e2sm_encode_ric_control_message(void *buffer, size_t buf_size);
 
 extern ssize_t e2sm_encode_ric_control_message_qos( void *buffer, size_t buf_size, long drb_id, long qos_flow_id, long five_qi, long priority_level);
 
@@ -127,7 +138,12 @@ int e2sm_encode_ric_encode_rc_eventrigger_format5(unsigned char *buf, size_t *bu
 
 extern E2SM_RC_ControlOutcome_t* e2sm_decode_ric_call_process_outcome(void *buffer, size_t buf_size);
 extern void e2sm_free_ric_call_process_outcome(E2SM_RC_ControlOutcome_t* controlOutcome) ;
-extern ssize_t e2sm_encode_nrcgi(NR_CGI_t *nr_cgi, void* ranParameterValue, size_t ranParameterValue_size,
-				long lNRCellId,uint8_t* buffer, size_t buf_size);
+extern ssize_t e2sm_encode_nrcgi(NR_CGI_t *nr_cgi, void* ranParameterValue, size_t ranParameterValue_size,long lNRCellId,uint8_t* buffer, size_t buf_size);
+
+E2SM_RC_IndicationHeader_t* e2sm_decode_rc_ric_indication_header(char *buffer, size_t buf_size);
+void e2sm_free_rc_ric_indication_header(E2SM_RC_IndicationHeader_t* indHdr);
+E2SM_RC_IndicationMessage_t* e2sm_decode_rc_ric_indication_message(const char *buffer, size_t buf_size);
+void e2sm_free_rc_ric_indication_message(E2SM_RC_IndicationMessage_t* indMsg);
+
 
 #endif /* _WRAPPER_H_ */
