@@ -5,9 +5,6 @@ obj-m += mutex_example.o
 obj-m += spinlock_example.o
 obj-m += tasklet_example.o
 obj-m += workqueue_example.o
-obj-m += kthread_mutex.o
-obj-m += wait_queue_dynamic.o
-
 
 PWD := $(CURDIR)
 

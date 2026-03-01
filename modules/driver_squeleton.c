@@ -9,6 +9,11 @@ static unsigned int major; /*major number for device*/
 static struct class *squeleton_class;
 static struct cdev squeleton_cdev;
 
+static int squeleton_open(struct inode *inode, struct file *file);
+static int squeleton_release(struct inode *inode, struct file *file);
+static ssize_t squeleton_read(struct file *filp, char __user *buf, size_t len, loff_t *off);
+static ssize_t squeleton_write(struct file *filp, const char  *buf, size_t len, loff_t *off);
+
 int squeleton_open(struct inode *inode, struct file *filp)
 {
 	pr_info("Someone tried to open me\n");
