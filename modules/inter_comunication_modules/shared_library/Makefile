@@ -1,5 +1,5 @@
-obj-m += shared_driver1.o
-obj-m += shared_driver2.o
+obj-m += send_data.o
+obj-m += received_data.o
  
 KDIR = /lib/modules/$(shell uname -r)/build
  
